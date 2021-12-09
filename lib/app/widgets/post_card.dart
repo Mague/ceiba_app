@@ -18,7 +18,7 @@ class PostCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Text(post.title,style:TextStyle(
             color: titleColor,
-            fontSize: 16,
+            fontSize: 18,
           )
         ),
       ),
