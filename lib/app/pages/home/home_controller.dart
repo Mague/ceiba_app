@@ -12,6 +12,7 @@ class HomeController extends Controller{
   String filter="";
   User? get user => _user; // data used by the View
   List<User> get users => _users; // data used by the View
+  List<User> get usersTemp => _usersTemp; // data used by the View
   final HomePresenter homePresenter;
 
   HomeController(usersRepo)

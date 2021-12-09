@@ -19,7 +19,7 @@ class HomePage extends View {
 class _HomePageState extends ViewState<HomePage,HomeController> {
   _HomePageState() : super(HomeController(DataUsersRepository()));
   
- 
+  
   @override
   Widget get view{
     return Scaffold(
@@ -55,12 +55,16 @@ class _HomePageState extends ViewState<HomePage,HomeController> {
             ControlledWidgetBuilder<HomeController>(
               builder: (context, controller) {
                 controller.getUsers();
-                if(controller.users.isEmpty){
+                if(controller.users.isEmpty && controller.usersTemp.isEmpty){
                   return const CircularProgressIndicator(
                     backgroundColor: Colors.greenAccent,
                   );
-                }else{
+                }else if(controller.users.isNotEmpty){
                   return UserList(users: (controller.users==null)?[]: controller.users);
+                }else{
+                  return const Center(
+                    child: Text("List is empty"),
+                  );
                 }
               },
             ),
