@@ -7,10 +7,13 @@ import 'package:ceiba_app/domain/repositories/users_repository.dart';
 import 'package:ceiba_app/global.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class DataUsersRepository extends UsersRepository {
   List<User> users=[];
-
+  final box = GetStorage('ceiba_app');
+  Map storageUserList = {};
   static final DataUsersRepository _instance = DataUsersRepository._internal();
   DataUsersRepository._internal() {
     users = <User>[];
@@ -35,20 +38,25 @@ class DataUsersRepository extends UsersRepository {
   
   @override
   Future<List<User>> getAllUsers() async{
-    var response = await http.get(
-        Uri.parse(apiUsers));
     List<User> users=[];
-    if(response.statusCode == 200){
-      var body = response.body;
-      List<dynamic> jsonResponse = convert.jsonDecode(body);
-			
-      for (var i = 0; i < jsonResponse.length; i++) {
-        print(jsonResponse[i]);
-        User data = User.fromJson(jsonResponse[i]);
-        users.add(data);
+    //box.erase();
+    users=await restoreUsers();
+    if(users.isEmpty){
+      var response = await http.get(
+          Uri.parse(apiUsers));
+      if(response.statusCode == 200){
+        var body = response.body;
+        List<dynamic> jsonResponse = convert.jsonDecode(body);
+        
+        for (var i = 0; i < jsonResponse.length; i++) {
+          print(jsonResponse[i]);
+          User data = User.fromJson(jsonResponse[i]);
+          users.add(data);
+        }
+        addAndStorageUsers(users);
+      }else{
+        print('Request failed with status: ${response.statusCode}.');
       }
-    }else{
-			print('Request failed with status: ${response.statusCode}.');
     }
     return users;
   }
@@ -76,5 +84,51 @@ class DataUsersRepository extends UsersRepository {
     }
     return posts;
   }
-  
+  void addAndStorageUsers(List<User> users) async{
+    
+    final Map storageMap = {};
+    
+    for(var i=0;i<users.length;i++){
+      User user=users[i];
+      storageMap['id']=user.id;
+      storageMap['name']=user.name;
+      storageMap['userName']=user.userName;
+      storageMap['email']=user.email;
+      storageMap['phone']=user.phone;
+      storageMap['website']=user.website;
+      storageMap['address']=user.address.toJson();
+      storageMap['company']=user.company.toJson();
+      storageUserList[user.id.toString()] = storageMap;
+    }
+    await box.write('users', storageUserList);
+  }
+  Future<List<User>> restoreUsers() async{
+    
+
+    storageUserList = box.read("users") != null ? box.read("users") : {};
+    List<User> _users = [];
+    if(storageUserList.isNotEmpty){
+      var storageMapEntries= storageUserList.entries;
+      for (int i = 0; i < storageMapEntries.length; i++) {
+        MapEntry tokenMap = storageMapEntries.elementAt(i);
+        var user = tokenMap.key;
+        var values = tokenMap.value;
+        print(values);
+        if (values['name'].length > 0) {
+          User userTemp = User(
+            values['id'],
+            values['name'],
+            values['userName'],
+            values['email'],
+            Address.fromJson(values['address']),
+            values['phone'],
+            values['website'],
+            Company.fromJson(values['company'])
+          );
+          _users.add(userTemp);
+        }
+      }
+    }
+    return _users;
+  }
 }

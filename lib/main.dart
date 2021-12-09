@@ -1,8 +1,12 @@
 import 'package:ceiba_app/app/pages/home/home_view.dart';
 import 'package:ceiba_app/global.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() => runApp(App());
+void main()async{
+  await GetStorage.init('ceiba_app');
+  runApp(App());
+}
 
 class App extends StatelessWidget{
   @override
