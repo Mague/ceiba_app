@@ -11,7 +11,6 @@ class UserList extends StatelessWidget {
       child: ListView.builder(
           itemCount: users.length,
           itemBuilder: (context, index) {
-            //print("Hay {.length} productos");
             final user = users[index];
             return userCard(user);
           }),

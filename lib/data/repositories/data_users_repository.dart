@@ -1,6 +1,7 @@
 import 'package:ceiba_app/domain/entities/address.dart';
 import 'package:ceiba_app/domain/entities/company.dart';
 import 'package:ceiba_app/domain/entities/geo.dart';
+import 'package:ceiba_app/domain/entities/post.dart';
 import 'package:ceiba_app/domain/entities/user.dart';
 import 'package:ceiba_app/domain/repositories/users_repository.dart';
 import 'package:ceiba_app/global.dart';
@@ -55,6 +56,25 @@ class DataUsersRepository extends UsersRepository {
   @override
   Future<User> getUser(int id) async {
      return users.firstWhere((user) => user.id == id);
+  }
+
+  @override
+  Future<List<Post>> getUserPosts(int id) async{
+    var response = await http.get(
+      Uri.parse(apiPostByUser+id.toString())
+    );
+
+    List<Post> posts=[];
+    if(response.statusCode==200){
+      var body = response.body;
+      List<dynamic> jsonResponse = convert.jsonDecode(body);
+
+      for(var i=0;i<jsonResponse.length;i++) {
+        Post post=Post.fromJson(jsonResponse[i]);
+        posts.add(post);
+      }
+    }
+    return posts;
   }
   
 }

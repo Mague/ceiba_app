@@ -8,7 +8,7 @@ class GetUsersUseCase extends UseCase<GetUsersCaseResponse,GetUsersUseCaseParams
   final UsersRepository usersRepository;
   GetUsersUseCase(this.usersRepository);
   @override
-  Future<Stream<GetUsersCaseResponse>> buildUseCaseStream(GetUsersCaseResponseparams) async{
+  Future<Stream<GetUsersCaseResponse>> buildUseCaseStream(params) async{
     final controller = StreamController<GetUsersCaseResponse>();
     try{
       final users = await usersRepository.getAllUsers();

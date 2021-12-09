@@ -60,7 +60,7 @@ class _HomePageState extends ViewState<HomePage,HomeController> {
                     backgroundColor: Colors.greenAccent,
                   );
                 }else if(controller.users.isNotEmpty){
-                  return UserList(users: (controller.users==null)?[]: controller.users);
+                  return UserList(users: controller.users);
                 }else{
                   return const Center(
                     child: Text("List is empty"),
