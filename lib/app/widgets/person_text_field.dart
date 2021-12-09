@@ -6,6 +6,7 @@ class PersonTextField extends StatelessWidget {
   final String hintText;
   final controller;
   final iconButton;
+  final Function(String)? onChanged;
   final FilteringTextInputFormatter inputFormatter;
   PersonTextField(
     {
@@ -13,7 +14,8 @@ class PersonTextField extends StatelessWidget {
       this.hintText = '',
       this.controller,
       this.iconButton,
-      required this.inputFormatter
+      required this.inputFormatter,
+      this.onChanged
     }
   );
   @override
@@ -25,7 +27,7 @@ class PersonTextField extends StatelessWidget {
           
           //hintText: this.hintText
         ),
-        //onChanged: (v) => {controller.text = v},
+        onChanged: onChanged,
         inputFormatters:
             this.inputFormatter != null ? [this.inputFormatter] : [],
         controller: this.controller,

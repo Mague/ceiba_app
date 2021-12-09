@@ -7,7 +7,9 @@ class HomeController extends Controller{
   
   User? _user;
   List<User> _users;
-  
+  List<User> _filterUsers=[];
+  List<User> _usersTemp =[];
+  String filter="";
   User? get user => _user; // data used by the View
   List<User> get users => _users; // data used by the View
   final HomePresenter homePresenter;
@@ -30,6 +32,7 @@ class HomeController extends Controller{
     };
     homePresenter.getUsersOnComplete = () {
       print('Users retrieved');
+      _usersTemp= users;
       refreshUI();
     };
 
@@ -55,14 +58,32 @@ class HomeController extends Controller{
     };
   }
   void getUser() => homePresenter.getUser(1);
-  void getUsers() => homePresenter.getUsers();
+  void getUsers(){
+    if(users.isEmpty){
+      homePresenter.getUsers();
+    }
+  }
   void getUserwithError() => homePresenter.getUser(1);
 
   void buttonPressed() {
     
     refreshUI();
   }
-
+  void filterUsers(String str){
+    List<User> filterUsers =[];
+    
+    for (var i = 0; i < _usersTemp.length; i++) {
+      if(_usersTemp[i].name.toLowerCase().startsWith(str.toLowerCase())){
+        filterUsers.add(_usersTemp[i]);
+      }
+    }
+    if(str.isNotEmpty){
+      _users=filterUsers;
+    }else{
+      _users=_usersTemp;
+    }
+    refreshUI();
+  }
   @override
   void onResumed() => print('On resumed');
 

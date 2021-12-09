@@ -18,7 +18,7 @@ class HomePage extends View {
 
 class _HomePageState extends ViewState<HomePage,HomeController> {
   _HomePageState() : super(HomeController(DataUsersRepository()));
-
+  
  
   @override
   Widget get view{
@@ -33,13 +33,21 @@ class _HomePageState extends ViewState<HomePage,HomeController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: PersonTextField(
-                inputText: 'Buscar Usuario',
-                controller:null,
-                inputFormatter: FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
-              ),
+            ControlledWidgetBuilder<HomeController>(
+              builder: (context, controller) {
+                return Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: PersonTextField(
+                    inputText: 'Buscar Usuario',
+                    controller:null,
+                    inputFormatter: FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
+                    onChanged: (e){
+                      controller.filterUsers(e);
+                    },
+                  ),
+                );
+                
+              },
             ),
             const SizedBox(
               height: 10,
