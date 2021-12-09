@@ -49,7 +49,6 @@ class DataUsersRepository extends UsersRepository {
         List<dynamic> jsonResponse = convert.jsonDecode(body);
         
         for (var i = 0; i < jsonResponse.length; i++) {
-          print(jsonResponse[i]);
           User data = User.fromJson(jsonResponse[i]);
           users.add(data);
         }
@@ -68,27 +67,31 @@ class DataUsersRepository extends UsersRepository {
 
   @override
   Future<List<Post>> getUserPosts(int id) async{
-    var response = await http.get(
-      Uri.parse(apiPostByUser+id.toString())
-    );
+    List<Post> posts = [];
+    posts=await restorePost(id);
+    if(posts.isEmpty){
+      var response = await http.get(
+        Uri.parse(apiPostByUser+id.toString())
+      );
 
-    List<Post> posts=[];
-    if(response.statusCode==200){
-      var body = response.body;
-      List<dynamic> jsonResponse = convert.jsonDecode(body);
+      if(response.statusCode==200){
+        var body = response.body;
+        List<dynamic> jsonResponse = convert.jsonDecode(body);
 
-      for(var i=0;i<jsonResponse.length;i++) {
-        Post post=Post.fromJson(jsonResponse[i]);
-        posts.add(post);
+        for(var i=0;i<jsonResponse.length;i++) {
+          Post post=Post.fromJson(jsonResponse[i]);
+          posts.add(post);
+        }
+        addAndStorageUserPost(posts);
       }
     }
     return posts;
   }
   void addAndStorageUsers(List<User> users) async{
     
-    final Map storageMap = {};
     
     for(var i=0;i<users.length;i++){
+      Map storageMap = {};
       User user=users[i];
       storageMap['id']=user.id;
       storageMap['name']=user.name;
@@ -102,9 +105,23 @@ class DataUsersRepository extends UsersRepository {
     }
     await box.write('users', storageUserList);
   }
+  void addAndStorageUserPost(List<Post> posts) async{
+    
+    Map storageUserPostsList = {};
+    for(var i=0;i<posts.length;i++){
+      Map storageMap = {};
+      Post post=posts[i];
+      storageMap['id']=post.id;
+      storageMap['userId']=post.userId;
+      storageMap['title']=post.title;
+      storageMap['body']=post.body;
+      
+      storageUserPostsList[post.id.toString()+"_"+post.userId.toString()] = storageMap;
+    }
+    await box.write('posts', storageUserPostsList);
+  }
   Future<List<User>> restoreUsers() async{
     
-
     storageUserList = box.read("users") != null ? box.read("users") : {};
     List<User> _users = [];
     if(storageUserList.isNotEmpty){
@@ -130,5 +147,34 @@ class DataUsersRepository extends UsersRepository {
       }
     }
     return _users;
+  }
+  
+  Future<List<Post>> restorePost(int id) async{
+    
+    storageUserList = box.read("posts") ?? {};
+    List<Post> _posts = [];
+    if(storageUserList.isNotEmpty){
+      var storageMapEntries= storageUserList.entries;
+      for (int i = 0; i < storageMapEntries.length; i++) {
+        MapEntry tokenMap = storageMapEntries.elementAt(i);
+        
+        var key = tokenMap.key;
+        var values = tokenMap.value;
+        var postId=values["id"];
+        String find='${postId}_$id';
+        bool isEqual=(key==find)?true:false;
+        
+        if (isEqual) {
+          Post postTemp = Post(
+            values['userId'],
+            values['id'],
+            values['title'],
+            values['body'],
+          );
+          _posts.add(postTemp);
+        }
+      }
+    }
+    return _posts;
   }
 }

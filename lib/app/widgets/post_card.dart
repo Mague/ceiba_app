@@ -28,7 +28,10 @@ class PostCard extends StatelessWidget {
           left:16.0,
           right:16.0,
         ),
-        child: Text(post.body),
+        child: Text(
+          post.body,
+          textAlign: TextAlign.justify,
+        ),
       )
     ];
   }
